@@ -1,0 +1,39 @@
+
+- name: Deploy Script and Make a Crontab Entry
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars:
+  - SCRIPT_NAME: deploy-with-ansible.sh
+  - SCRIPT_SRC: ../scripts
+  - SCRIPT_DEST: /home/ansible
+  - SCRIPT_USER_OWNER: "ansible"
+  - SCRIPT_GROUP_OWNER: "ansible"
+  - MINUTE: "*/10"
+  - HOUR: "*"
+  - DAY: "*"
+  - MONTH: "*"
+  - WEEKDAY: "*"
+  - DEPLOY_FOR_USER: "ansible"
+
+
+  tasks:
+  - name: Place Script at the desired path
+    ansible.builtin.copy:
+      src: "{{ SCRIPT_SRC }}/{{ SCRIPT_NAME }}"
+      dest: "{{ SCRIPT_DEST }}/{{ SCRIPT_NAME }}"
+      owner: "{{ SCRIPT_USER_OWNER }}"
+      group: "{{ SCRIPT_GROUP_OWNER }}"
+      mode: 0755
+
+  - name: make crontab entry
+    ansible.builtin.cron:
+      name: "Test Script deployed by Ansible"
+      job: "{{ SCRIPT_DEST }}/{{ SCRIPT_NAME }}"
+      user: "{{ DEPLOY_FOR_USER }}"
+      minute: "{{ MINUTE }}"
+      hour: "{{ HOUR }}"
+      day: "{{ DAY }}"
+      month: "{{ MONTH }}"
+      weekday: "{{ WEEKDAY }}"
