@@ -28,7 +28,7 @@ Before running this playbook, ensure the following:
 Execute the following command in the terminal:
 
 ```bash
-ansible-playbook -i inventory.ini deploy_script.yml
+ansible-playbook -i inventory.ini deploy_script.yaml
 ```
 
 Ansible will connect to the target servers, copy the Shell script, make it executable, and will create an Entry in the crontab.
