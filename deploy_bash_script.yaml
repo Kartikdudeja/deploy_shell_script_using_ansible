@@ -1,0 +1,54 @@
+# Deploy Bash Script with Ansible
+
+- name: Deploy Script and Make a Crontab Entry
+  hosts: all
+  become: true
+  gather_facts: false
+
+  # update these variable as per the need
+  vars:
+
+    # script details
+  - SCRIPT_NAME: ScriptName.sh
+  - SCRIPT_SRC: ./
+  - SCRIPT_DEST: /home/centos
+  - SCRIPT_USER_OWNER: "centos"
+  - SCRIPT_GROUP_OWNER: "centos"
+
+    # crontab details
+  - DEPLOY_FOR_USER: "centos"
+  - MINUTE: "*/10"
+  - HOUR: "*"
+  - DAY: "*"
+  - MONTH: "*"
+  - WEEKDAY: "*"
+
+  tasks:
+
+  # create operations script directory if it doesn't exist already
+  - name: "Create the directory if it does not exist"
+    ansible.builtin.file:
+      path: "{{ SCRIPT_DEST }}"
+      state: directory
+      mode: '0755'
+
+  # copy the script on the host
+  - name: "Place Script at the desired path"
+    ansible.builtin.copy:
+      src: "{{ SCRIPT_SRC }}/{{ SCRIPT_NAME }}"
+      dest: "{{ SCRIPT_DEST }}/{{ SCRIPT_NAME }}"
+      owner: "{{ SCRIPT_USER_OWNER }}"
+      group: "{{ SCRIPT_GROUP_OWNER }}"
+      mode: '0755'
+
+  # edit the crontab
+  - name: "make crontab entry for the script"
+    ansible.builtin.cron:
+      name: "Test Script deployed by Ansible"
+      job: "{{ SCRIPT_DEST }}/{{ SCRIPT_NAME }}"
+      user: "{{ DEPLOY_FOR_USER }}"
+      minute: "{{ MINUTE }}"
+      hour: "{{ HOUR }}"
+      day: "{{ DAY }}"
+      month: "{{ MONTH }}"
+      weekday: "{{ WEEKDAY }}"
